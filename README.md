@@ -44,15 +44,15 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
 
 **Screenshots:**
 - Docker container on EC2:  
-  ![Staging EC2 Check](screenshots/stagingec2check.png)
+  ![stagingec2check](screenshots/stagingec2check.png)
 - Application running in browser:  
-  ![Staging Dashboard](screenshots/stagingdashboard.png)
+  ![stagingdashboard](screenshots/stagingdashboard.png)
 - CloudWatch Logs:  
-  ![Staging Log Group](screenshots/stagingloggroup.png)
+  ![stagingloggroup](screenshots/stagingloggroup.png)
 - CI/CD Workflow:  
-  ![Staging Workflow](screenshots/stagingworkflow.png)
+  ![stagingworkflow](screenshots/stagingworkflow.png)
 - Operation logs (optional):  
-  ![Staging Operation](screenshots/stagingop.png)
+  ![stagingop](screenshots/stagingop.png)
 
 
 ### Production Branch
@@ -64,12 +64,12 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
 
 **Screenshots:**
 - Docker container on EC2:  
-  ![Production EC2 Check](screenshots/prodec2check.png)
+  ![prodec2check](screenshots/prodec2check.png)
 - Application running in browser:  
-  ![Production Dashboard](screenshots/proddashboard.png)
+  ![proddashboard](screenshots/proddashboard.png)
 - CloudWatch Logs:  
-  ![Production Log Group](screenshots/production\ loggroup.png)
+  ![production loggroup](screenshots/production\ loggroup.png)
 - CI/CD Workflow:  
-  ![Production Workflow](screenshots/productionworkflow.png)
+  ![productionworkflow](screenshots/productionworkflow.png)
 - Operation logs (optional):  
-  ![Production Operation](screenshots/prodop.png)
+  ![prodop](screenshots/prodop.png)
