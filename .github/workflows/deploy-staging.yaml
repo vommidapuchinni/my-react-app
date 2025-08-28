@@ -23,7 +23,10 @@ jobs:
           username: ubuntu
           key: ${{ env.STAGING_KEY }}
           script: |
-            # Create folder if not exists
+            # Ensure logs folder exists
+            mkdir -p ~/my-react-app-staging/logs
+
+            # Clone if not exists
             if [ ! -d "~/my-react-app-staging" ]; then
               git clone -b staging https://github.com/vommidapuchinni/my-react-app.git ~/my-react-app-staging
             fi
@@ -41,4 +44,7 @@ jobs:
 
             # Start CloudWatch agent
             sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/my-react-app-staging/cloudwatch-staging.json -s
+
+            # Optional: verify CloudWatch agent status
+            sudo amazon-cloudwatch-agent-ctl -a status
 
