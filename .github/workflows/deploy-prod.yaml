@@ -44,7 +44,7 @@ jobs:
             git clean -fd
             git pull origin main
           else
-            git clone https://github.com/YOUR_USERNAME/my-react-app.git
+            git clone https://github.com/vommidapuchinni/my-react-app.git
             cd my-react-app
           fi
           docker-compose down
