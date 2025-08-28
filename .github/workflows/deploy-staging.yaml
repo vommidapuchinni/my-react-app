@@ -23,12 +23,22 @@ jobs:
           username: ubuntu
           key: ${{ env.STAGING_KEY }}
           script: |
-            cd ~/my-react-app-staging || git clone -b staging https://github.com/vommidapuchinni/my-react-app.git ~/my-react-app-staging
+            # Create folder if not exists
+            if [ ! -d "~/my-react-app-staging" ]; then
+              git clone -b staging https://github.com/vommidapuchinni/my-react-app.git ~/my-react-app-staging
+            fi
+
             cd ~/my-react-app-staging
+
+            # Pull latest code
             git reset --hard
             git clean -fd
             git pull origin staging
-            docker-compose -f docker-compose-staging.yml down
-            docker-compose -f docker-compose-staging.yml up -d --build
+
+            # Build and run Docker container
+            docker-compose -f docker-compose-staging.yaml down
+            docker-compose -f docker-compose-staging.yaml up -d --build
+
+            # Start CloudWatch agent
             sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/my-react-app-staging/cloudwatch-staging.json -s
 
