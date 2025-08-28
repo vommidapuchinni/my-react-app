@@ -4,9 +4,10 @@ services:
   react-app-staging:
     build: .
     ports:
-      - "4000:80"
+      - "4000:80"   # staging port
     container_name: my-react-app-staging
     restart: always
     volumes:
       - ./logs:/app/logs
+    command: sh -c "npm run build && serve -s dist > /app/logs/app.log 2>&1"
 
