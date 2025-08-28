@@ -1,0 +1,44 @@
+name: Deploy → Staging
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image (staging)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-react-app:staging
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_STAGING }}
+
+      - name: Add server to known_hosts
+        run: ssh-keyscan -H ${{ secrets.SERVER_IP_STAGING }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on staging
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP_STAGING }} "\
+            cd ${{ secrets.DEPLOY_PATH_STAGING }} || mkdir -p ${{ secrets.DEPLOY_PATH_STAGING }}; \
+            docker compose pull || true; \
+            docker compose up -d --remove-orphans"
+
