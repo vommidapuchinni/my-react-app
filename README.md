@@ -8,31 +8,9 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
 4. Docker is used to build, deploy, and serve the React application via Nginx.
 
 ## Infrastructure Diagram
-                  GitHub Repository
-                   |
-                   | (Push)
-                   v
-           GitHub Actions CI/CD
-          /                       \
-         /                         \
-  Staging Workflow            Production Workflow
-    (staging branch)             (main branch)
-        |                              |
-        | SSH deploy                    | SSH deploy
-        v                              v
-  EC2 Staging Instance           EC2 Production Instance
-  ┌────────────────┐             ┌────────────────┐
-  │Docker Container│             │Docker Container│
-  │ React + Nginx  │             │React + Nginx   │
-  │ /app/logs      │             │ /app/logs      │
-  └────────────────┘             └────────────────┘
-        |                              |
-        | CloudWatch Agent             | CloudWatch Agent
-        v                              v
-  CloudWatch Logs Group            CloudWatch Logs Group
-  /staging/react-app               /production/react-app
+ 
+  ![infra](screenshots/infra.png)
 
-  
 ## Deployment Flow
 
 ### Staging Branch
@@ -45,13 +23,13 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
 **Screenshots:**
 - Docker container on EC2:  
   ![stagingec2check](screenshots/stagingec2check.png)
-- Application running in browser:  
+- EC2 dashboard:  
   ![stagingdashboard](screenshots/stagingdashboard.png)
 - CloudWatch Logs:  
   ![stagingloggroup](screenshots/stagingloggroup.png)
 - CI/CD Workflow:  
   ![stagingworkflow](screenshots/stagingworkflow.png)
-- Operation logs (optional):  
+- Application running in browser:  
   ![stagingop](screenshots/stagingop.png)
 
 
@@ -65,11 +43,11 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
 **Screenshots:**
 - Docker container on EC2:  
   ![prodec2check](screenshots/prodec2check.png)
-- Application running in browser:  
+- EC2 dashboard
   ![proddashboard](screenshots/proddashboard.png)
 - CloudWatch Logs:  
   ![production loggroup](screenshots/production\ loggroup.png)
 - CI/CD Workflow:  
   ![productionworkflow](screenshots/productionworkflow.png)
-- Operation logs (optional):  
+- Application running in browser:  
   ![prodop](screenshots/prodop.png)
