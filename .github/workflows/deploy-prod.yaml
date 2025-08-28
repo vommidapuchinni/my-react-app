@@ -9,6 +9,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      EC2_IP: ${{ secrets.EC2_IP }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,7 +51,12 @@ jobs:
             git clone https://github.com/vommidapuchinni/my-react-app.git
             cd my-react-app
           fi
+
+          # Build and run Docker container
           docker-compose down
           docker-compose up -d --build
+
+          # Start CloudWatch agent
+          sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/my-react-app/cloudwatch-prod.json -s
           EOF
 
