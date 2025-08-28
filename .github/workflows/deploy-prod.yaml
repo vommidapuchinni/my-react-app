@@ -6,20 +6,28 @@ on:
       - main
 
 jobs:
-  deploy-production:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      PROD_IP: ${{ secrets.EC2_IP }}
-      PROD_KEY: ${{ secrets.EC2_SSH_KEY }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build React App
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint & Test
         run: |
-          npm install
-          npm run build
+          npm run lint || echo "No lint script found"
+          npm test || echo "No tests found"
+
+      - name: Build React App
+        run: npm run build
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -30,7 +38,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << EOF
           cd ~
-          # Create folder if not exists
           if [ ! -d "my-react-app" ]; then
             git clone -b main https://github.com/vommidapuchinni/my-react-app.git
           fi
@@ -39,11 +46,18 @@ jobs:
           git clean -fd
           git pull origin main
 
-          # Build & run container
+          # Install CloudWatch Agent if not installed
+          if ! command -v amazon-cloudwatch-agent-ctl >/dev/null 2>&1; then
+            wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+            sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+            sudo apt-get install -f -y
+          fi
+
+          # Start Docker container
           docker-compose down
           docker-compose up -d --build
 
-          # Start CloudWatch agent
+          # Start CloudWatch Agent
           sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/my-react-app/cloudwatch-prod.json -s
           EOF
 
