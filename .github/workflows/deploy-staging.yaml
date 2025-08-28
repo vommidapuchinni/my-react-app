@@ -1,0 +1,50 @@
+name: Deploy Staging React App
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    env:
+      STAGING_IP: ${{ secrets.STAGING_IP }}
+      STAGING_KEY: ${{ secrets.STAGING_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Staging EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ env.STAGING_IP }}
+          username: ubuntu
+          key: ${{ env.STAGING_KEY }}
+          script: |
+            # Ensure logs folder exists
+            mkdir -p ~/my-react-app-staging/logs
+
+            # Clone if not exists
+            if [ ! -d "~/my-react-app-staging" ]; then
+              git clone -b staging https://github.com/vommidapuchinni/my-react-app.git ~/my-react-app-staging
+            fi
+
+            cd ~/my-react-app-staging
+
+            # Pull latest code
+            git reset --hard
+            git clean -fd
+            git pull origin staging
+
+            # Build and run Docker container
+            docker-compose -f docker-compose-staging.yaml down
+            docker-compose -f docker-compose-staging.yaml up -d --build
+
+            # Start CloudWatch agent
+            sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/my-react-app-staging/cloudwatch-staging.json -s
+
+            # Optional: verify CloudWatch agent status
+            sudo amazon-cloudwatch-agent-ctl -a status
+

@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  react-app-staging:
+    build: .
+    ports:
+      - "4000:80"        # Exposes Nginx on port 4000
+    container_name: my-react-app-staging
+    restart: always
+    volumes:
+      - ./logs:/var/log/nginx   # Map Nginx logs to host folder for CloudWatch
+
