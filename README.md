@@ -11,6 +11,10 @@ This project demonstrates a full CI/CD workflow for deploying a React applicatio
  
   ![infra](screenshots/infra.png)
 
+ ## LIVE APP LINK THORUGH GITHUB PAGES
+- LIVE:  
+  ![githubpages](screenshots/githubpages.png)   
+
 ## Deployment Flow
 
 ### Staging Branch
