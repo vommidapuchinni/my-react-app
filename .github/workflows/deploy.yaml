@@ -1,0 +1,52 @@
+name: CI → Build → Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Start ssh-agent and add private key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy files with rsync
+        run: |
+          # if your build output is dist/ (Vite) change accordingly; for CRA it is build/
+          BUILD_DIR="dist"   # change to "build" if using CRA
+          if [ ! -d "$BUILD_DIR" ]; then BUILD_DIR="build"; fi
+
+          echo "Deploying $BUILD_DIR to ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_PATH }}"
+
+          rsync -avz --delete --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+            --exclude='.git' --exclude='node_modules' $BUILD_DIR/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_PATH }}
+
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }} || true; sudo systemctl reload nginx || true"
+
