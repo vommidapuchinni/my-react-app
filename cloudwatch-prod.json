@@ -1,4 +1,8 @@
 {
+  "agent": {
+    "metrics_collection_interval": 60,
+    "run_as_user": "root"
+  },
   "logs": {
     "logs_collected": {
       "files": {
@@ -6,11 +10,8 @@
           {
             "file_path": "/home/ubuntu/my-react-app/logs/*.log",
             "log_group_name": "/production/react-app",
-            "log_stream_name": "{instance_id}"
+            "log_stream_name": "{instance_id}",
+            "timezone": "UTC"
           }
         ]
-      }
-    }
-  }
-}
 

@@ -4,9 +4,9 @@ services:
   react-app:
     build: .
     ports:
-      - "3000:80"
+      - "3000:80"        # Nginx serves React on 3000
     container_name: my-react-app
     restart: always
     volumes:
-      - ./logs:/var/log/nginx   # Map container logs to host folder
+      - ./logs:/var/log/nginx   # Map Nginx logs to host for CloudWatch
 

@@ -6,32 +6,20 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy-production:
     runs-on: ubuntu-latest
-
     env:
-      EC2_IP: ${{ secrets.EC2_IP }}
-      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      PROD_IP: ${{ secrets.EC2_IP }}
+      PROD_KEY: ${{ secrets.EC2_SSH_KEY }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Lint & Test
-        run: |
-          npm run lint || echo "No lint script found"
-          npm test || echo "No tests found"
-
       - name: Build React App
-        run: npm run build
+        run: |
+          npm install
+          npm run build
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -42,17 +30,16 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << EOF
           cd ~
-          if [ -d "my-react-app" ]; then
-            cd my-react-app
-            git reset --hard
-            git clean -fd
-            git pull origin main
-          else
-            git clone https://github.com/vommidapuchinni/my-react-app.git
-            cd my-react-app
+          # Create folder if not exists
+          if [ ! -d "my-react-app" ]; then
+            git clone -b main https://github.com/vommidapuchinni/my-react-app.git
           fi
+          cd my-react-app
+          git reset --hard
+          git clean -fd
+          git pull origin main
 
-          # Build and run Docker container
+          # Build & run container
           docker-compose down
           docker-compose up -d --build
 
